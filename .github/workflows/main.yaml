@@ -62,3 +62,24 @@ jobs:
         asset_path: ./${{ env.NPM_ASSET }}
         asset_name: ${{ env.NPM_ASSET }}
         asset_content_type: application/gzip
+
+    - name: Publish static site to Netlify
+      uses: jsmrcaga/action-netlify-deploy@master
+      if: ${{ env.NETLIFY_AUTH_TOKEN != '' && env.NETLIFY_SITE_ID != '' }} 
+      with:
+        NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+        NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        NETLIFY_DEPLOY_MESSAGE: "Prod deploy v${{ github.ref }}"
+        NETLIFY_DEPLOY_TO_PROD: true
+        build_directory: out
+
+    - name: Publish to Docker Hub
+      uses: elgohr/Publish-Docker-Github-Action@master
+      if: ${{ env.DOCKER_USERNAME != '' && env.DOCKER_USERNAME != '' }} 
+      with:
+        name: ${{ env.GIT_REPO }}
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+        buildoptions: "--compress --force-rm"
+        tags: "latest,${{ env.RELEASE_VERSION }}"
+
