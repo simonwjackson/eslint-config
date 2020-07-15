@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 1.0.4 (2020-07-15)
+
+
+### Bug Fixes
+
+* manual npm publish ([cc81d5e](https://github.com/simonwjackson/eslint-config/commit/cc81d5e5bded39648aa8d7b0da5b7a21a15d6555))
+
 ### 1.0.3 (2020-07-15)
 
 
