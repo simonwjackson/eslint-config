@@ -1,12 +1,8 @@
 > TLDR: You probably dont want to use this eslint-config
 
-# Install the module
+[![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
 
-```bash
-npm install --save-dev @simonwjackson/eslint-config
-```
-
-# Install peer dependencies
+# Install the module and its dependencies
 
 ```bash
 npx install-peerdeps @simonwjackson/eslint-config
