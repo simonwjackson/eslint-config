@@ -19,6 +19,16 @@ jobs:
     - name: Install dependencies
       run: npm ci
 
+    - name: Check for blueprint files
+      id: check_files
+      uses: andstor/file-existence-action@v1
+      with:
+        files: "package.json, blueprint.md, blueprint.json"
+
+    - name: Build README
+      if: steps.check_files.outputs.files_exists == 'true'
+      run: npx @appnest/readme generate
+
     - name: Configure git
       id: configure_git
       run: |
