@@ -25,17 +25,10 @@ jobs:
         git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
         git config user.name "$GITHUB_ACTOR"
         
-    - name: Check for blueprint files
-      id: check_files
-      uses: andstor/file-existence-action@v1
-      with:
-        allow_failure: true
-        files: "package.json, blueprint.md, blueprint.json"
-
     - name: Build README
       if: steps.check_files.outputs.files_exists == 'true'
       run: |
-        npx @appnest/readme generate
+        [ -f "blueprint.json" ] && npx @appnest/readme generate
         git add .
         git diff-index --quiet HEAD || git commit -m 'Update README' && git push origin master
         
