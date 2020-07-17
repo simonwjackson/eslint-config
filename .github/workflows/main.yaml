@@ -36,83 +36,41 @@ jobs:
       run: |
         npx @appnest/readme generate
         git add .
-        git diff-index --quiet HEAD || git commit -m 'Update README'
+        git diff-index --quiet HEAD || git commit -m 'Update README' && git push origin master
         
-    - name: Standard Version
-      id: bump_version
-      run: |
-        if \
-        { git log "$( git describe --tags --abbrev=0 )..HEAD" --format='%s' | cut -d: -f1 | sort -u | sed -e 's/([^)]*)//' | grep -q -i -E '^feat|fix|perf|refactor|revert$' ; } || \
-        { git log "$( git describe --tags --abbrev=0 )..HEAD" --format='%s' | cut -d: -f1 | sort -u | sed -e 's/([^)]*)//' | grep -q -E '\!$' ; } || \
-        { git log "$( git describe --tags --abbrev=0 )..HEAD" --format='%b' | grep -q -E '^BREAKING CHANGE:' ; }
-        then
-          npx standard-version
-          git push --follow-tags origin master
-          echo ::set-env name=RELEASE_VERSION::$(node -p "require('./package.json').version") 
-          echo ::set-env name=NPM_ASSET::$(npm pack | tail -n 1) 
-          echo ::set-env name=DID_BUMP::1
-        else
-          echo "No applicable changes since the previous tag..."
-        fi
-
-    - name: Publish to npm
-      if: ${{ env.NPM_AUTH_TOKEN != '' && env.DID_BUMP == 1 }} 
+    - name: Semantic Release
+      uses: cycjimmy/semantic-release-action@v2
+      if: ${{ env.NPM_AUTH_TOKEN }} 
+      with:
+        # You can specify specifying version range for the extra plugins if you prefer.
+        extra_plugins: |
+          @semantic-release/commit-analyzer
+          @semantic-release/release-notes-generator
+          @semantic-release/changelog
+          @semantic-release/npm
+          @semantic-release/github
+          @qiwi/semantic-release-gh-pages-plugin
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
-      run: |
-        echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_AUTH_TOKEN }}" > ~/.npmrc
-        [[ $(node -p "require('./package.json').private") == "true" ]] || npm publish
-
-    - name: Create Release
-      id: create_release
-      if: ${{ env.DID_BUMP == 1 }} 
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: v${{ env.RELEASE_VERSION }}
-        release_name: Release v${{ env.RELEASE_VERSION }}
-        draft: false
-        prerelease: false
-
-    - name: Upload Release Asset
-      id: upload-release-asset
-      if: ${{ env.DID_BUMP == 1 }} 
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./${{ env.NPM_ASSET }}
-        asset_name: ${{ env.NPM_ASSET }}
-        asset_content_type: application/gzip
-
-    - name: Deploy to github pages
-      if: ${{ false }} 
-      uses: JamesIves/github-pages-deploy-action@3.5.7
-      with:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        BRANCH: gh-pages # The branch the action should deploy to.
-        FOLDER: out # The folder the action should deploy.
+        NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
     - name: Publish static site to Netlify
       uses: jsmrcaga/action-netlify-deploy@master
-      if: ${{ env.NETLIFY_AUTH_TOKEN != '' && env.NETLIFY_SITE_ID != '' && env.DID_BUMP == 1 }} 
+      if: ${{ env.NETLIFY_AUTH_TOKEN != '' && env.NETLIFY_SITE_ID != '' && env.steps.semantic.outputs.new_release_published == true }} 
       with:
         NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
         NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
-        NETLIFY_DEPLOY_MESSAGE: "Prod deploy v${{ github.ref }}"
+        NETLIFY_DEPLOY_MESSAGE: "Prod deploy v${{ env.steps.semantic.outputs.new_release_version }}"
         NETLIFY_DEPLOY_TO_PROD: true
         build_directory: out
 
     - name: Publish to Docker Hub
       uses: elgohr/Publish-Docker-Github-Action@master
-      if: ${{ env.DOCKER_USERNAME != '' && env.DOCKER_USERNAME != '' && env.DID_BUMP == 1 }} 
+      if: ${{ env.DOCKER_USERNAME != '' && env.DOCKER_USERNAME != '' && env.steps.semantic.outputs.new_release_published == true }} 
       with:
         name: ${{ env.GIT_REPO }}
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
         buildoptions: "--compress --force-rm"
-        tags: "latest,${{ env.RELEASE_VERSION }}"
+        tags: "latest,${{ env.steps.semantic.outputs.new_release_version }}"
 

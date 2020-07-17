@@ -1,6 +1,6 @@
 {
   "name": "@simonwjackson/eslint-config",
-  "version": "1.0.5",
+  "version": "0.0.0-development",
   "files": [
     "index.js"
   ],
@@ -30,14 +30,16 @@
     "@commitlint/config-conventional": "^9.1.1",
     "commitlint": "^9.1.0",
     "eslint-plugin-unicorn": "^20.1.0",
-    "husky": "^4.2.5"
+    "husky": "^4.2.5",
+    "semantic-release": "^17.1.1"
   },
   "scripts": {
-    "release": "standard-version"
+    "release": "standard-version",
+    "semantic-release": "semantic-release"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/simonwjackson/eslint-config.git"
+    "url": "https://github.com/simonwjackson/eslint-config.git"
   },
   "keywords": [],
   "author": "",
