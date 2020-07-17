@@ -30,7 +30,7 @@ module.exports = {
       // "pkgRoot": "out",
     }],
     ["@semantic-release/github", {
-      "assets": "*.tgz"
+      "assets": "**/*.tgz"
     }],
     // "@qiwi/semantic-release-gh-pages-plugin"
   ]
