@@ -291,17 +291,15 @@ module.exports = {
         ]
       }
     },
-
-		// Next.js routing
     {
-      files: [
-        'pages/**/*',
+      files: [ 
+        'pages/**/*', // Next.js routing
+        '**/use*.@(j|t)sx' // React hooks
       ],
       rules: {
         'unicorn/filename-case': [ 'off' ]
       }
-    },
-
+    }, 
     {
       files: [
         '*.js',
