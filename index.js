@@ -294,8 +294,7 @@ module.exports = {
           {
             "case": "pascalCase",
 						"ignore": [
-							'pages/_app.jsx',
-							'pages/_document.jsx',
+							'pages/**',
 						]
           }
         ]
