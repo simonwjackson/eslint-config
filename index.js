@@ -292,7 +292,11 @@ module.exports = {
         "unicorn/filename-case": [
           "error",
           {
-            "case": "pascalCase"
+            "case": "pascalCase",
+						"ignore": [
+							'pages/_app.jsx',
+							'pages/_document.jsx',
+						]
           }
         ]
       }
