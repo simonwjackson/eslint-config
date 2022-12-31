@@ -76,7 +76,7 @@ jobs:
         build_directory: out
 
     - name: Publish to Docker Hub
-      uses: elgohr/Publish-Docker-Github-Action@master
+      uses: elgohr/Publish-Docker-Github-Action@v5
       if: ${{ env.DOCKER_USERNAME != '' && env.DOCKER_USERNAME != '' && env.steps.semantic.outputs.new_release_published == true }} 
       with:
         name: ${{ env.GIT_REPO }}
